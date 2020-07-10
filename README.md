@@ -7,10 +7,10 @@ Los requerimientos del paquete son:
 
 - Tweepy
 - WordCloud
--stop_words
--altair
--matplotlib
--pandas
+- stop_words
+- altair
+- matplotlib
+- pandas
 
 Para instalar el paquete descargue este repo y en su código use este código:
 
