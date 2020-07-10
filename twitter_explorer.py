@@ -10,83 +10,148 @@ from wordcloud import WordCloud
 from stop_words import get_stop_words
 import matplotlib.pyplot as plt
 
+
+
+
 def timeline (list_of_tweets, identifier):
-	creation_dates=[tweet["created_at"] for tweet in list_of_tweets]
-	df = pd.DataFrame({'dates':creation_dates})
-	df.dates = df.dates.astype("datetime64")+ timedelta(hours=-5)
-	df['just_date'] = df['dates'].dt.date
+    """Returns a chart with the count of tweets per day and save it with the identifier
+    
+    Arguments
+    _ _ _ _ _ _ _
+    
+    list_of_tweets: dict
+        use dictionary that are return from Twitter api 
+    identifier: str 
+        name to save the chart"""    
+    creation_dates=[tweet["created_at"] for tweet in list_of_tweets]
+    df = pd.DataFrame({'dates':creation_dates})
+    df.dates = df.dates.astype("datetime64")+ timedelta(hours=-5)
+    df['just_date'] = df['dates'].dt.date
 
-	counts= df.groupby(["just_date"]).size()
-	counts=counts.to_frame(name = 'count').reset_index()
-	counts.just_date=pd.to_datetime(counts.just_date)
-	counts.sort_values(by=['just_date'])
-	counts['just_date'] = pd.to_datetime(counts['just_date'])
+    counts= df.groupby(["just_date"]).size()
+    counts=counts.to_frame(name = 'count').reset_index()
+    counts.just_date=pd.to_datetime(counts.just_date)
+    counts.sort_values(by=['just_date'])
+    counts['just_date'] = pd.to_datetime(counts['just_date'])
 
-	chart=alt.Chart(counts).mark_line(point=True).encode(
-		x='just_date',
-		y='count'
-	).properties(
-		title='Número de tuits en el tiempo'
-	)
-	chart.save("timeline_"+identifier+"_"+str(date.today())+".html")
-	return (chart)
+    chart=alt.Chart(counts).mark_line(point=True).encode(
+        x='just_date',
+        y='count'
+    ).properties(
+        title='Número de tuits en el tiempo'
+    )
+    chart.save("timeline_"+identifier+"_"+str(date.today())+".html")
+    return (chart)
+
+
+
+
 
 def most_used_hashtags(list_of_tweets,n):
-	#Most used hashtags:
-	hashtags=[]
-	w_o_ht=[]
-	for tweet in list_of_tweets:
-		ht=[tweet["entities"]["hashtags"][i]["text"].lower()for i in range(0,len(tweet["entities"]["hashtags"]))]
-		
-		if len(ht)==0:
-			w_o_ht.append(tweet) 
-		else:
-			hashtags=hashtags+ht
+    """Returns a list of the most used hashtags
+    
+    Arguments
+    _ _ _ _ _ _ _
+    
+    list_of_tweets: dict
+        use dictionary that is returned from Twitter api 
+    n: int 
+        lenght of the list that will be returned"""    
+    #Most used hashtags:
+    hashtags=[]
+    w_o_ht=[]
+    for tweet in list_of_tweets:
+        ht=[tweet["entities"]["hashtags"][i]["text"].lower()for i in range(0,len(tweet["entities"]["hashtags"]))]
+        if len(ht)==0:
+            w_o_ht.append(tweet) 
+        else:
+            hashtags=hashtags+ht
 
-	c = Counter(hashtags)
-	print(c.most_common(n))
-	
-	return(c)
+    c = Counter(hashtags)
+    print(c.most_common(n))
+
+    return(c)
+
+
+
+
 
 def most_mentioned_users(list_of_tweets,n):
-	#Most mentioned users:
-	mentions=[]
-	w_o_mt=[]
-	for tweet in list_of_tweets:
-		mt=[tweet["entities"]["user_mentions"][i]["screen_name"]for i in range(0,len(tweet["entities"]["user_mentions"]))]
-		
-		if len(mt)==0:
-			w_o_mt.append(tweet) 
-		else:
-			mentions=mentions+mt
+    """Returns a list of the most mentioned users
+    
+    Arguments
+    _ _ _ _ _ _ _
+    
+    list_of_tweets: dict
+        use dictionary that is returned from Twitter api 
+    n: int 
+        lenght of the list that will be returned"""    
+    
+    #Most mentioned users:
+    mentions=[]
+    w_o_mt=[]
+    for tweet in list_of_tweets:
+        mt=[tweet["entities"]["user_mentions"][i]["screen_name"]for i in range(0,len(tweet["entities"]["user_mentions"]))]
+    
+        if len(mt)==0:
+            w_o_mt.append(tweet) 
+        else:
+            mentions=mentions+mt
 
-	c = Counter(mentions)
-	print(c.most_common(n))
+    c = Counter(mentions)
+    print(c.most_common(n))
 
-	return(c)
+    return(c)
+
+
+
+
 
 def most_used_urls(list_of_tweets,n):
-	urls=[]
-	sin_url=[]
-	n_rts=[]
-	for tweet in list_of_tweets:
-		if "retweeted_status"in tweet.keys():
-			url=[tweet["retweeted_status"]["entities"]["urls"][i]["expanded_url"]for i in range(0,len(tweet["retweeted_status"]["entities"]["urls"]))]
-		elif "quoted_status"in tweet.keys():
-			url=[tweet["quoted_status"]["entities"]["urls"][i]["expanded_url"]for i in range(0,len(tweet["quoted_status"]["entities"]["urls"]))]
-			url=url.extend([tweet["entities"]["urls"][i]["expanded_url"]for i in range(0,len(tweet["entities"]["urls"]))])
-		else:
-			url=[tweet["entities"]["urls"][i]["expanded_url"]for i in range(0,len(tweet["entities"]["urls"]))]
-		if url is not None:
+    
+    """Returns a list of the most used urls
+    
+    Arguments
+    _ _ _ _ _ _ _
+    
+    list_of_tweets: dict
+        use dictionary that is returned from Twitter api 
+    n: int 
+        lenght of the list that will be returned"""    
 
-			urls=urls+url
+    urls=[]
+    sin_url=[]
+    n_rts=[]
+    for tweet in list_of_tweets:
+        if "retweeted_status"in tweet.keys():
+            url=[tweet["retweeted_status"]["entities"]["urls"][i]["expanded_url"]for i in range(0,len(tweet["retweeted_status"]["entities"]["urls"]))]
+        elif "quoted_status"in tweet.keys():
+            url=[tweet["quoted_status"]["entities"]["urls"][i]["expanded_url"]for i in range(0,len(tweet["quoted_status"]["entities"]["urls"]))]
+            url=url.extend([tweet["entities"]["urls"][i]["expanded_url"]for i in range(0,len(tweet["entities"]["urls"]))])
+        else:
+            url=[tweet["entities"]["urls"][i]["expanded_url"]for i in range(0,len(tweet["entities"]["urls"]))]
+        if url is not None:
 
-	c = Counter(urls)
-	print(c.most_common(n))
+            urls=urls+url
 
-	return(c)
-	
+    c = Counter(urls)
+    print(c.most_common(n))
+
+    return(c)
+
+
+
+
 def most_used_domains(list_of_tweets,n):
+
+	"""Returns a list of the most used domains
+    
+	Arguments
+	_ _ _ _ _ _ _
+	list_of_tweets: dict
+		use dictionary that is returned from Twitter api 
+	n: int 
+		lenght of the list that will be returned"""
 	urls=most_used_urls(list_of_tweets,0)
 	dominios={}
 	for url in urls.keys():
@@ -103,7 +168,17 @@ def most_used_domains(list_of_tweets,n):
 
 
 def most_retweeted_urls(list_of_tweets,n):
-	#Most mentioned urls:
+	"""Returns a list of the most retweeted urls
+    
+	Arguments
+	_ _ _ _ _ _ _
+	list_of_tweets: dict
+		use dictionary that is returned from Twitter api 
+	n: int 
+		lenght of the list that will be returned"""
+
+
+    
 	urls={}
 	sin_url=[]
 	n_rts=[]
@@ -135,12 +210,24 @@ def most_retweeted_urls(list_of_tweets,n):
 					
 		except:
 			next
-
 	urls_sorted=dict(sorted(urls.items(), key = itemgetter(1), reverse = True)[:n])
 	print(urls_sorted)
 	return(urls)
 
+
+
+
 def most_retweeted_domains(urls,n):
+    
+	"""Returns a list of the most retweeted domains
+    
+	Arguments
+	_ _ _ _ _ _ _
+	list_of_tweets: dict
+		use dictionary that is returned from Twitter api 
+	n: int 
+		lenght of the list that will be returned"""
+    
 	dominios={}
 	for url in urls.keys():
 		ext = tldextract.extract(url)
@@ -153,7 +240,17 @@ def most_retweeted_domains(urls,n):
 	print(dominios_sorted)
 	return(dominios)
 
+
+
+
+
 def unify_text(list_of_tweets):
+	"""Unifies text into a single text category   
+    
+	Arguments
+	_ _ _ _ _ _ _
+	list_of_tweets: dict
+		use dictionary that is returned from Twitter api"""
 	for tweet in list_of_tweets:
 		if "extended_tweet" in tweet.keys():
 			tweet["unified_text"]=tweet["extended_tweet"]["full_text"]
@@ -173,13 +270,21 @@ def unify_text(list_of_tweets):
 		if  "quoted_status" in tweet.keys():
 			tweet["unified_text"]=tweet["text"]+tweet["quoted_status"]["text"]
 		
-
 		if "unified_text" not in tweet.keys():
 			tweet["unified_text"]=tweet["text"]
 	
 	return(list_of_tweets)
 
+
+
+
 def sum_of_rts(list_of_tweets):
+	"""Adds up all the retweets for text containing the same corpus   
+    
+	Arguments
+	_ _ _ _ _ _ _
+	list_of_tweets: dict
+		use dictionary that is returned from Twitter api"""    
 	for tweet in list_of_tweets:
 		tweet["rts_global_count"]=tweet["retweet_count"]
 		if "quoted_status" in tweet.keys():
@@ -189,25 +294,41 @@ def sum_of_rts(list_of_tweets):
 	return(list_of_tweets)
 
 
+# In[ ]:
+
 
 def most_retweeted_tweets(list_of_tweets,n):
+	"""Returns the top n tweets with most retweets   
+    
+	Arguments
+	_ _ _ _ _ _ _
+	list_of_tweets: dict
+		use dictionary that is returned from Twitter api
+	n: int 
+		lenght of the list that will be returned"""       
 	tweets_procesados=unify_text(list_of_tweets)
 	tweets_procesados=sum_of_rts(tweets_procesados)
-
 	sorted_byRts=sorted(tweets_procesados, key = lambda i: i["rts_global_count"],reverse=True)
-
 	#Most retwited twits:
-
 	
 	pd.set_option("max_colwidth",300)
 	df = pd.DataFrame.from_dict(sorted_byRts)
 	df['user'] = [list_of_tweets[i]["user"]["screen_name"] for i in range(0,len(list_of_tweets))]
-
 	df=df[["id",'created_at','unified_text',"rts_global_count","user"]]
-
 	return(df.head(n))
 
+
+
+
 def find_tweets_by_id(list_of_tweets, id):
+	"""Search tweet based on id number   
+    
+	Arguments
+	_ _ _ _ _ _ _
+	list_of_tweets: dict
+		use dictionary that is returned from Twitter api
+	id: int 
+		Status ID, unique tweet identificator"""      
 	trinos=[]
 	for tweet in list_of_tweets:
 		if tweet["id"]==id:
@@ -216,26 +337,27 @@ def find_tweets_by_id(list_of_tweets, id):
 	return(trinos)
 
 
-#def most_used_emojies(list_of_tweets,n):
-#	emojies=[]
-
 
 
 
 def wordcloud_bios(list_of_tweets, name):
-	
+	"""Returns wordcloud with most frequent character strings in user's bios. Repeated bios are disregarded.    
+    
+	Arguments
+	_ _ _ _ _ _ _
+	list_of_tweets: dict
+		use dictionary that is returned from Twitter api
+	name:  
+		Name where you wish to save the plot"""  
 	bios=[tweet["user"]["description"] for tweet in list_of_tweets]
 	bios=list(filter(None, bios))
 	unique_bios=list(set(bios))
 	bios_str=' '.join(unique_bios)
 	bios_str=bios_str.lower()
-
 	stopwords_es= get_stop_words('es')
 	stopwords_es.append("rt")
 	stopwords_es.extend(["https","co"])
 	stopwords_es.extend( get_stop_words('en'))
-
-
 	wordcloud = WordCloud(background_color ='white',stopwords=stopwords_es,width=800, height=400,collocations=True, normalize_plurals=False).generate(bios_str) 
 	  
 	# plot the WordCloud image                        
@@ -246,7 +368,17 @@ def wordcloud_bios(list_of_tweets, name):
 	plt.show() 
 
 
+
+
 def wordcloud_tweets(list_of_tweets, name):
+	"""Returns wordcloud with most frequent character strings in the tweets' corpus.  
+    
+	Arguments
+	_ _ _ _ _ _ _
+	list_of_tweets: dict
+		use dictionary that is returned from Twitter api
+	name:  
+		Name where you wish to save the plot"""     
 	tweets_procesados=unify_text(list_of_tweets)
 	text=[tweet["unified_text"] for tweet in tweets_procesados]
 	texto_str=' '.join(text)
@@ -255,9 +387,7 @@ def wordcloud_tweets(list_of_tweets, name):
 	stopwords_es.append("rt")
 	stopwords_es.extend(["https","co"])
 	stopwords_es.extend( get_stop_words('en'))
-
 	wordcloud = WordCloud(background_color ='white',stopwords=stopwords_es,width=1000, height=500,collocations=True, normalize_plurals=False).generate(texto_str)
-
 	# plot the WordCloud image                        
 	plt.figure( figsize=(20,10) )
 	plt.imshow(wordcloud) 
@@ -265,15 +395,33 @@ def wordcloud_tweets(list_of_tweets, name):
 	plt.savefig("./"+name+"png")
 	plt.show() 
 
+
+
 def find_tweets_by_text (list_of_tweets, list_of_terms):
+	"""return filter tweets based on a list of terms  
+    
+	Arguments
+	_ _ _ _ _ _ _
+	list_of_tweets: dict
+		use dictionary that is returned from Twitter api
+	list_of_terms: list
+		List of character strings to filter out"""   
 	list_of_tweets=unify_text(list_of_tweets)
 	filtered_tweets=[ x for x in list_of_tweets if any(word in x["unified_text"].lower() for word in list_of_terms)]
 	return(filtered_tweets)
 
+
 def wordcloud_filtered_tweets(list_of_tweets, list_of_terms,name):
+	"""return a wordcloud with the most frequent character stings based on a filtered list of terms  
+    
+	Arguments
+	_ _ _ _ _ _ _
+	list_of_tweets: dict
+		use dictionary that is returned from Twitter api
+	list_of_terms: list
+		List of character strings to filter out
+	name:  
+		Name where you wish to save the plot"""
 	filtered_tweets=find_tweets_by_text (list_of_tweets, list_of_terms)
 	wordcloud=wordcloud_tweets(filtered_tweets, name)
-
-
-
 
