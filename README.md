@@ -6,7 +6,11 @@ Un ejemplo de cómo extraer tuits usando Standard Search se encuentra [aquí](ht
 Los requerimientos del paquete son:
 
 - Tweepy
-- .....
+- WordCloud
+-stop_words
+-altair
+-matplotlib
+-pandas
 
 Para instalar el paquete descargue este repo y en su código use este código:
 
@@ -33,4 +37,4 @@ Este paquete incluye funciones para:
 
 Un ejemplo de uso de las funciones se encuentra [aquí](https://github.com/Obsdemocracia/twitter-explorer/blob/master/Ejemplo%20funciones%20Twitter.ipynb)
 
-La documentación completa se encuentra [aquí]
+La documentación completa se encuentra [aquí](https://github.com/Obsdemocracia/twitter-explorer/blob/master/Documentación.md)
