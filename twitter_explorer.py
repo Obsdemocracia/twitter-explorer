@@ -14,7 +14,8 @@ import matplotlib.pyplot as plt
 
 
 def timeline (list_of_tweets, identifier):
-    """Returns a chart with the count of tweets per day and save it with the identifier
+	###Esto es una prueba
+    """Returns a chart cccwith the count of tweets per day and save it with the identifier
     
     Arguments
     _ _ _ _ _ _ _
